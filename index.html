@@ -1,0 +1,170 @@
+<canvas id="canvas"></canvas>
+
+<script src="resize.js"></script>
+<script src="pixel-sprite-generator.js"></script>
+<script src="jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+
+var canvas;
+var ctx;
+var then;
+
+var player;
+var x = 0;
+var y = 0;
+var angle = 0;
+var speed = 250;
+var turnSpeed = 100;
+
+/*
+ * 87 = Foward
+ * 65 = Left
+ * 68 = Right
+ * 83 = Backwards
+ */
+var keys = [];
+var FORWARD_KEY = 87;
+var LEFT_KEY = 65;
+var RIGHT_KEY = 68;
+var BACKWARDS_KEY = 83;
+var SPACE_KEY = 32;
+var mouseX;
+var mouseY;
+var clicked = false;
+
+function createPlayer(){
+	var SPRITE_SCALE = 3;
+	var player_class1 = new psg.Mask([
+	        0, 0, 0, 0, 0, 0,
+	        0, 0, 0, 0, 1, 1,
+	        0, 0, 0, 0, 1,-1,
+	        0, 0, 0, 1, 1,-1,
+	        0, 0, 0, 1, 1,-1,
+	        0, 0, 1, 1, 1,-1,
+	        0, 1, 1, 1, 2, 2,
+	        0, 1, 1, 1, 2, 2,
+	        0, 1, 1, 1, 2, 2,
+	        0, 1, 1, 1, 1,-1,
+	        0, 0, 0, 1, 1, 1,
+	        0, 0, 0, 0, 0, 0
+	], 6, 12, true, false);
+	var player_class2 = new psg.Mask([
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2,
+		0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 1, 2,
+		0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 1, -1,
+		0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 1, -1,
+		0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 1, -1,
+		0, 0, 0, 0, 0, 1, 1, 1, 0, 2, 2, 2, 2,
+		0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 1, 1, -1, 
+		0, 0, 0, 0, 0, 1, 0, 2, 2, 1, 1, 1, -1,
+		0, 0, 0, 0, 0, 0, 2, 1, 2, 1, 1, 1, -1,
+		0, 0, 0, 0, 0, 2, 1, 1, 2, 1, 1, -1, -1,
+		0, 0, 0, 0, 2, 1, 1, 1, 2, 1, 1, -1, 1,
+		0, 0, 0, 2, 1, 1, 2, 2, 1, 1, 1, -1, 1,
+		0, 0, 0, 2, 1, 2, 0, 2, 1, 1, 1, -1, 1,
+		0, 0, 0, 0, 2, 0, 0, 2, 2, 1, 1, -1, 1,
+		0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 
+		0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 2, 1, 2, 
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0
+		], 13, 18, true, false)
+	generatedPlayer = new psg.Sprite(player_class2, {
+	    colored         : true,
+		colorVariations : 0.1,
+		saturation      : 0.4
+	});
+	player = resize(generatedPlayer.canvas, SPRITE_SCALE);
+}
+
+function start(){
+	canvas = document.getElementById('canvas');
+	ctx = canvas.getContext('2d');
+	// canvas.width = $(document).width(); 
+	// canvas.height = $(document).height(); 
+	canvas.width = 1280;
+	canvas.height = 720;
+	x = canvas.width / 2;
+	y = canvas.height / 2;
+	var w = window;
+	requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
+    then = Date.now();
+    gameLoop();
+}
+
+function update(delta){
+	if(keys[LEFT_KEY]){
+		angle -= turnSpeed * delta;
+	}
+	if(keys[RIGHT_KEY]){
+		angle += turnSpeed * delta;
+	}
+	if(keys[FORWARD_KEY]){
+		var dirX = Math.cos((angle + 270) * (Math.PI / 180));
+		var dirY = Math.sin((angle + 270) * (Math.PI / 180));
+		x += dirX * speed * delta;
+		y += dirY * speed * delta;
+	}
+	if(keys[BACKWARDS_KEY]){
+		var dirX = Math.cos((angle + 270) * (Math.PI / 180));
+		var dirY = Math.sin((angle + 270) * (Math.PI / 180));
+		x -= dirX * speed * delta;
+		y -= dirY * speed * delta;
+	}
+}
+
+function render(){
+	ctx.fillStyle = '#000';
+	ctx.fillRect(0, 0 , canvas.width, canvas.height);
+
+	var radians = angle * (Math.PI / 180);
+	ctx.translate(x, y);
+	ctx.rotate(radians);
+	ctx.drawImage(ship, -ship.width / 2, -ship.height / 2, ship.width, ship.height);
+	ctx.rotate(-radians);
+	ctx.translate(-x, -y);
+}
+
+function gameLoop(){
+    var now = Date.now();
+    var delta = now - then;
+    update(delta / 1000);
+    render();
+    then = now;
+    requestAnimationFrame(gameLoop);
+}
+
+$(document).on('ready', function(){
+	createSpaceShip();
+	start();
+	
+	$(document).on('keydown', function(e){
+		// Refresh
+		if(e.keyCode != 116){
+			e.preventDefault();
+		}
+		keys[e.keyCode] = true;
+	});
+
+	$(document).on('keyup', function(e){
+		// Refresh
+		if(e.keyCode != 116){
+			e.preventDefault();
+		}
+		keys[e.keyCode] = false;
+	});
+
+	$(document).on('mousedown', function(e){
+		e.preventDefault();
+		mouseX = e.clientX - canvas.offsetLeft;
+		mouseY = e.clientY - canvas.offsetTop; 
+		clicked = true;
+	});
+
+	$(document).on('mouseup', function(e){
+		e.preventDefault();
+		clicked = false;
+	});
+
+});
+
+</script>
