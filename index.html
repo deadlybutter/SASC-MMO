@@ -1,8 +1,9 @@
 <canvas id="canvas"></canvas>
 
-<script src="resize.js"></script>
-<script src="pixel-sprite-generator.js"></script>
-<script src="jquery-2.1.1.min.js"></script>
+<script src="/scripts/resize.js"></script>
+<script src="/scripts/pixel-sprite-generator.js"></script>
+
+<script src="/scripts/jquery-2.1.1.min.js"></script>
 <script type="text/javascript">
 
 var canvas;
@@ -33,47 +34,9 @@ var mouseY;
 var clicked = false;
 
 function createPlayer(){
-	var SPRITE_SCALE = 3;
-	var player_class1 = new psg.Mask([
-	        0, 0, 0, 0, 0, 0,
-	        0, 0, 0, 0, 1, 1,
-	        0, 0, 0, 0, 1,-1,
-	        0, 0, 0, 1, 1,-1,
-	        0, 0, 0, 1, 1,-1,
-	        0, 0, 1, 1, 1,-1,
-	        0, 1, 1, 1, 2, 2,
-	        0, 1, 1, 1, 2, 2,
-	        0, 1, 1, 1, 2, 2,
-	        0, 1, 1, 1, 1,-1,
-	        0, 0, 0, 1, 1, 1,
-	        0, 0, 0, 0, 0, 0
-	], 6, 12, true, false);
-	var player_class2 = new psg.Mask([
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2,
-		0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 1, 2,
-		0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 1, -1,
-		0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 1, -1,
-		0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 1, -1,
-		0, 0, 0, 0, 0, 1, 1, 1, 0, 2, 2, 2, 2,
-		0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 1, 1, -1, 
-		0, 0, 0, 0, 0, 1, 0, 2, 2, 1, 1, 1, -1,
-		0, 0, 0, 0, 0, 0, 2, 1, 2, 1, 1, 1, -1,
-		0, 0, 0, 0, 0, 2, 1, 1, 2, 1, 1, -1, -1,
-		0, 0, 0, 0, 2, 1, 1, 1, 2, 1, 1, -1, 1,
-		0, 0, 0, 2, 1, 1, 2, 2, 1, 1, 1, -1, 1,
-		0, 0, 0, 2, 1, 2, 0, 2, 1, 1, 1, -1, 1,
-		0, 0, 0, 0, 2, 0, 0, 2, 2, 1, 1, -1, 1,
-		0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1, 
-		0, 0, 0, 0, 0, 0, 0, 0, 2, 1, 2, 1, 2, 
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0
-		], 13, 18, true, false)
-	generatedPlayer = new psg.Sprite(player_class2, {
-	    colored         : true,
-		colorVariations : 0.1,
-		saturation      : 0.4
-	});
-	player = resize(generatedPlayer.canvas, SPRITE_SCALE);
+	var sprite = new Image();
+	sprite.src = "/images/ship2.png";
+	player = sprite;
 }
 
 function start(){
@@ -119,7 +82,7 @@ function render(){
 	var radians = angle * (Math.PI / 180);
 	ctx.translate(x, y);
 	ctx.rotate(radians);
-	ctx.drawImage(ship, -ship.width / 2, -ship.height / 2, ship.width, ship.height);
+	ctx.drawImage(player, -player.width / 2, -player.height / 2, player.width, player.height);
 	ctx.rotate(-radians);
 	ctx.translate(-x, -y);
 }
@@ -134,7 +97,7 @@ function gameLoop(){
 }
 
 $(document).on('ready', function(){
-	createSpaceShip();
+	createPlayer();
 	start();
 	
 	$(document).on('keydown', function(e){
